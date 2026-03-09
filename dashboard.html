@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<!-- Success Modal -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="success-modal" id="successModal">
+    <div class="checkmark">✓</div>
+    <h2>Success!</h2>
+    <p id="successMessage"></p>
+</div>
+
+<div class="sidebar">
+
+<h2>📚BOOKS WORLD</h2>
+
+<a href="/dashboard">🏠 Dashboard</a>
+<a href="/add_book_page">➕ Add Books</a>
+<a href="/borrow">📖 Borrow Book</a>
+<a href="/return">🔁 Return Book</a>
+<a href="/renewal">🔄 Renew Book</a>
+<a href="/logout">🚪 Logout</a>
+
+</div>
+
+
+<div class="main">
+
+<h1>Library Dashboard</h1>
+
+<!-- DASHBOARD CARDS -->
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Books</h3>
+<p>{{books|length}}</p>
+</div>
+
+<div class="card">
+<h3>Borrow System</h3>
+<p>Active</p>
+</div>
+
+<div class="card">
+<h3>Library Status</h3>
+<p>Open</p>
+</div>
+
+</div>
+
+
+<!-- ADD BOOK SECTION -->
+
+<div id="addbook" class="addbook">
+
+<h2>Add New Book</h2>
+
+<form action="/add_book" method="post">
+
+<input type="text" name="title" placeholder="Book Title" required>
+<input type="text" name="author" placeholder="Author Name" required>
+<input type="number" name="count" placeholder="Book Count" required>
+
+<button type="submit">Add Book</button>
+
+</form>
+
+</div>
+
+
+<!-- BOOK TABLE -->
+
+<h2>Available Books</h2>
+
+<table>
+
+<tr>
+<th>Title</th>
+<th>Author</th>
+<th>Available Count</th>
+</tr>
+
+{% for book in books %}
+
+<tr>
+<td>{{book.title}}</td>
+<td>{{book.author}}</td>
+<td>{{book.count}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+<!-- Success Pop-up Script -->
+<script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                    document.addEventListener('DOMContentLoaded', function() {
+                        showSuccessModal('{{ message }}');
+                    });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    function showSuccessModal(message) {
+        const modal = document.getElementById('successModal');
+        const backdrop = document.getElementById('modalBackdrop');
+        const messageElement = document.getElementById('successMessage');
+        
+        messageElement.textContent = message;
+        modal.classList.add('show');
+        backdrop.classList.add('show');
+        
+        // Auto-hide after 2 seconds
+        setTimeout(function() {
+            modal.classList.remove('show');
+            backdrop.classList.remove('show');
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>

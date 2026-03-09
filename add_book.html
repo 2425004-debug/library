@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Book</title>
+</head>
+<body>
+
+<h2>Add New Book</h2>
+
+<form action="/add_book" method="POST">
+
+<label>Title:</label><br>
+<input type="text" name="title" required><br><br>
+
+<label>Author:</label><br>
+<input type="text" name="author" required><br><br>
+
+<label>Count:</label><br>
+<input type="number" name="count" required><br><br>
+
+<input type="submit" value="Add Book">
+<a href="/dashboard"><button type="button">Cancel</button></a>
+
+</form>
+
+</body>
+</html>

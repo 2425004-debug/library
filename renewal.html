@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Renew Book</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<!-- Success Modal -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="success-modal" id="successModal">
+    <div class="checkmark">✓</div>
+    <h2>Success!</h2>
+    <p id="successMessage"></p>
+</div>
+
+<!-- Alert Modal -->
+<div class="modal-backdrop" id="alertBackdrop"></div>
+<div class="alert-modal" id="alertModal">
+    <h2>⏰ Days Remaining</h2>
+    <p id="alertMessage"></p>
+    <button onclick="closeAlertModal()">OK</button>
+</div>
+
+<div class="sidebar">
+
+<h2>📚BOOKS WORLD</h2>
+
+<a href="/dashboard">🏠 Dashboard</a>
+<a href="/add_book_page">➕ Add Books</a>
+<a href="/borrow">📖 Borrow Book</a>
+<a href="/return">🔁 Return Book</a>
+<a href="/renewal">🔄 Renew Book</a>
+<a href="/logout">🚪 Logout</a>
+
+</div>
+
+<div class="main">
+
+<h2>Renew Your Books</h2>
+
+{% if borrowed_books %}
+
+<table>
+<tr>
+<th>Book Title</th>
+<th>Days Remaining</th>
+<th>Action</th>
+</tr>
+
+{% for book in borrowed_books %}
+<tr>
+<td>{{book.title}}</td>
+<td>
+    <span class="days-badge {% if book.remaining_days <= 3 %}urgent{% elif book.remaining_days <= 7 %}warning{% else %}safe{% endif %}">
+        {{book.remaining_days}} days
+    </span>
+</td>
+<td>
+    <button class="renew-btn" onclick="showAlertAndRenew('{{book.title}}', {{book.remaining_days}})">Renew</button>
+</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<form id="renewForm" action="/renew_book" method="POST" style="display:none;">
+    <input type="hidden" name="userid" id="renewUserid">
+    <input type="hidden" name="password" id="renewPassword">
+    <input type="hidden" name="title" id="renewTitle">
+</form>
+
+{% else %}
+
+<p>You have not borrowed any books yet.</p>
+
+{% endif %}
+
+</div>
+
+<script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                    document.addEventListener('DOMContentLoaded', function() {
+                        showSuccessModal('{{ message }}');
+                    });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    function showAlertAndRenew(title, remainingDays) {
+        const alertModal = document.getElementById('alertModal');
+        const alertBackdrop = document.getElementById('alertBackdrop');
+        const alertMessage = document.getElementById('alertMessage');
+        
+        let message = `You have <strong>${remainingDays} day${remainingDays !== 1 ? 's' : ''}</strong> left to return this book before the due date.`;
+        
+        if (remainingDays <= 3) {
+            message += '<br><br>⚠️ This book is due soon!';
+        }
+        
+        alertMessage.innerHTML = message;
+        alertModal.classList.add('show');
+        alertBackdrop.classList.add('show');
+        
+        window.pendingRenewalTitle = title;
+    }
+
+    function closeAlertModal() {
+        const alertModal = document.getElementById('alertModal');
+        const alertBackdrop = document.getElementById('alertBackdrop');
+        
+        alertModal.classList.remove('show');
+        alertBackdrop.classList.remove('show');
+        
+        // Proceed with renewal after closing alert
+        if (window.pendingRenewalTitle) {
+            proceedWithRenewal(window.pendingRenewalTitle);
+        }
+    }
+
+    function proceedWithRenewal(title) {
+        // Get user credentials from prompt
+        const userid = prompt("Enter your User ID:");
+        if (!userid) return;
+        
+        const password = prompt("Enter your Password:");
+        if (!password) return;
+        
+        // Submit renewal form
+        document.getElementById('renewUserid').value = userid;
+        document.getElementById('renewPassword').value = password;
+        document.getElementById('renewTitle').value = title;
+        document.getElementById('renewForm').submit();
+    }
+
+    function showSuccessModal(message) {
+        const modal = document.getElementById('successModal');
+        const backdrop = document.getElementById('modalBackdrop');
+        const messageElement = document.getElementById('successMessage');
+        
+        messageElement.textContent = message;
+        modal.classList.add('show');
+        backdrop.classList.add('show');
+        
+        setTimeout(function() {
+            modal.classList.remove('show');
+            backdrop.classList.remove('show');
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
